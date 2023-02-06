@@ -1,5 +1,6 @@
 # Przedsłowo
-Możliwe że przeinżynierowałem rozwiązanie i mogłem je pozostawić znacznie prostszym, jednak brakowało mi kontekstu co jest wymagane od tego kodu, więc zacząłem wymyślać.
+Możliwe że przeinżynierowałem rozwiązanie i mogłem je pozostawić znacznie prostszym, jednak brakowało mi kontekstu co jest wymagane od tego kodu, więc zacząłem wymyślać.  
+Proces rozbiłem na kilka commit'ów jeśli kogoś by to interesowało.  
 
 # Problemy z kodem:
 Problemy w tym kodzie można podzielić na kilka kategorii:

@@ -5,17 +5,10 @@ using System.Linq;
 
 namespace ConsoleApp
 {
-    // `DataReader` to badziewna nazwa, nie mówi nam nic.
-    // Ta klasa nie jest używana w żadnym dynamicznym kontekście i spokojnie mogłaby być statyczna, ale załóżmy, że
-    //   w przyszłości chcielibyśmy ją rozwijać o jakieś metody do analizy danych, czy coś w tym stylu.
     public class DatabaseSchema
     {
-        // `ImportedObjects` nie potrzebnie jest typu ogólnego, można go uszczegółowić.
-        // Oraz łamana jest konwencja nazewnictwa, można argumentować czy potrzebny jest underscore przed zmienną,
-        //   ale nie wolno argumentować, że zmienna ma być z małej litery.
         List<SchemaElement> _importedObjects;
 
-        // Przyda nam się konstruktor by wymusić podanie pliku.
         /// <param name="fileWithData">Csv file.</param>
         public DatabaseSchema(string fileWithData)
         {
@@ -31,9 +24,7 @@ namespace ConsoleApp
 
         public void PrintData()
         {
-            // Ach tak, good'ol MOUNT OF DOOM.
             const string DATABASE = "DATABASE";
-            // Przefiltrowanie zmiennych na samym początku usuwa nam if'a.
             foreach (var database in _importedObjects.Where(item => item.Type == DATABASE))
             {
                 Console.WriteLine($"Database '{database.Name}' ({database.NumberOfChildren} tables)");
@@ -53,20 +44,17 @@ namespace ConsoleApp
         }
 
 
-        // To kompletnie nie musi być metoda publiczna, chcesz obiekt to skorzystaj z innych metod.
         static List<SchemaElement> ReadFromTextFile(string fileName, int linesToIgnore = 0)
         {
             const char ValueSeparator = ';';
 
             var result = new List<SchemaElement>() { };
-            // StreamReader implementuje IDisposable, zawsze warto z niego korzystać.
             using (var streamReader = new StreamReader(fileName))
             {
                 streamReader.ReadLine();
                 while (!streamReader.EndOfStream)
                 {
                     var line = streamReader.ReadLine();
-                    // Chcemy pominąć linijki nie zawierające elementów.
                     if (string.IsNullOrEmpty(line))
                         continue;
 
@@ -74,7 +62,6 @@ namespace ConsoleApp
                     if (values.Length != 7)
                         continue;
 
-                    // Takie podejście znacznie lepiej pokazuje że tworzymy tu pełnoprawny obiekt.
                     var newElement =
                         new SchemaElement()
                         {
@@ -103,19 +90,21 @@ namespace ConsoleApp
 
         static IEnumerable<SchemaElement> NormalizeDatabaseObjects(IEnumerable<SchemaElement> databaseObjects)
             => databaseObjects.Select(item =>
-                new SchemaElement()
                 {
-                    Type = RemoveWhitespace(item.Type).ToUpper(),
-                    Name = RemoveWhitespace(item.Name),
-                    Schema = RemoveWhitespace(item.Schema),
-                    ParentName = RemoveWhitespace(item.ParentName),
-                    ParentType = RemoveWhitespace(item.ParentType).ToUpper()
+                    var result = (SchemaElement)item.Clone();
+
+                    result.Type = RemoveWhitespace(item.Type).ToUpper();
+                    result.Name = RemoveWhitespace(item.Name);
+                    result.Schema = RemoveWhitespace(item.Schema);
+                    result.ParentName = RemoveWhitespace(item.ParentName);
+                    result.ParentType = RemoveWhitespace(item.ParentType).ToUpper();
+
+                    return result;
                 });
 
         static IEnumerable<SchemaElement> AssignNumberOfChildren(IEnumerable<SchemaElement> databaseObjects)
             => databaseObjects.Select(item =>
                 {
-                    // We współczesnym C# możnaby ten kod zawrzeć bez deklaracji zmiennej.
                     var result = (SchemaElement)item.Clone();
                     result.NumberOfChildren = databaseObjects
                         .Count(potentialChild => (potentialChild.ParentType == item.Type
@@ -129,8 +118,6 @@ namespace ConsoleApp
     }
 
 
-    // Nazwa obiektu kompletnie nic nam nie mówi, równie dobrze można by ją nazwać DataClassObject.
-    // W takim zastosowaniu także proponowałbym użycie `record`'u, dane kompletnie nie potrzebują być zmieniane.
     class SchemaElement : ICloneable
     {
         public string Name { get; set; }
@@ -143,13 +130,10 @@ namespace ConsoleApp
         public string ParentType { get; set; }
 
         public string DataType { get; set; }
-        // Tutaj warto ograniczyć domenę.
         public bool IsNullable { get; set; }
 
-        // Double daje nam zdecydowanie zbyt dużo wolności i sugeruje to, że zmienna nie jest traktowana jako integer.
         public int NumberOfChildren { get; set; }
 
-        // Tutaj by się przydał `record`, który by zaimplementował tą metodę za mnie.
         public object Clone() => this.MemberwiseClone();
     }
 }
