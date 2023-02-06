@@ -1,18 +1,14 @@
 ﻿namespace ConsoleApp
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
-
     internal class Program
     {
         static void Main(string[] args)
         {
-            var reader = new DataReader();
-            reader.ImportAndPrintData("dataa.csv");
+            var reader = new DatabaseStructure();
+            // Literówka w nazwie pliku.
+            // Zależne jaki rodzaj aplikacji to jest warto by wyekstraktować tego stringa do stałej, albo najlepiej
+            //   pliku konfiguracyjnego, jednak jeśli jest to prosta aplikacja, sądzę, że jest to zbyteczne.
+            reader.ImportAndPrintData("data.csv");
         }
     }
 }
